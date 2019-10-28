@@ -74,11 +74,13 @@ public class QueryMetricsRequestHandler extends MetricsHandler implements HttpHa
     if (mp == null) {
       sendResponse(
           exchange,
-          "{\"error\":\"Metrics Processor is not initialized. The reader has run into an issue or has just started.\"}",
+          "{\"error\":\"Metrics Processor is not initialized. The reader has run into an "
+              + "issue or has just started.\"}",
           HttpURLConnection.HTTP_UNAVAILABLE);
 
       LOG.warn(
-          "Metrics Processor is not initialized. The reader has run into an issue or has just started.");
+          "Metrics Processor is not initialized. The reader has run into an issue or "
+              + "has just started.");
       return;
     }
 
@@ -86,7 +88,8 @@ public class QueryMetricsRequestHandler extends MetricsHandler implements HttpHa
     if (dbEntry == null) {
       sendResponse(
           exchange,
-          "{\"error\":\"There are no metrics databases. The reader has run into an issue or has just started.\"}",
+          "{\"error\":\"There are no metrics databases. The reader has run into an "
+              + "issue or has just started.\"}",
           HttpURLConnection.HTTP_UNAVAILABLE);
 
       LOG.warn(
@@ -162,10 +165,7 @@ public class QueryMetricsRequestHandler extends MetricsHandler implements HttpHa
   }
 
   private boolean isUnitLookUp(HttpExchange exchange) throws IOException {
-    if (exchange.getRequestURI().toString().equals(Util.QUERY_URL + "/units")) {
-      return true;
-    }
-    return false;
+    return exchange.getRequestURI().toString().equals(Util.QUERY_URL + "/units");
   }
 
   private void getMetricUnits(HttpExchange exchange) throws IOException {

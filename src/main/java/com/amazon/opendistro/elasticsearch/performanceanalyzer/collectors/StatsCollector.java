@@ -42,14 +42,21 @@ public class StatsCollector extends PerformanceAnalyzerMetricsCollector {
 
   private static final Logger STATS_LOGGER = LogManager.getLogger("stats_log");
   private static final Logger GENERAL_LOG = LogManager.getLogger(StatsCollector.class);
-  private static StatsCollector statsCollector = null;
   public static String STATS_TYPE = "plugin-stats-metadata";
-
+  private static StatsCollector statsCollector = null;
   private final Map<String, String> metadata;
   private Map<String, AtomicInteger> counters = new ConcurrentHashMap<>();
   private Date objectCreationTime = new Date();
 
   private List<StatExceptionCode> defaultExceptionCodes = new Vector<>();
+
+  private StatsCollector(Map<String, String> metadata) {
+    super(
+        MetricsConfiguration.CONFIG_MAP.get(StatsCollector.class).samplingInterval,
+        "StatsCollector");
+    this.metadata = metadata;
+    defaultExceptionCodes.add(StatExceptionCode.TOTAL_ERROR);
+  }
 
   public static StatsCollector instance() {
     if (statsCollector == null) {
@@ -65,33 +72,6 @@ public class StatsCollector extends PerformanceAnalyzerMetricsCollector {
     return statsCollector;
   }
 
-  @VisibleForTesting
-  Map<String, AtomicInteger> getCounters() {
-    return counters;
-  }
-
-  public void logException() {
-    logException(StatExceptionCode.OTHER);
-  }
-
-  public void logException(StatExceptionCode statExceptionCode) {
-    incCounter(statExceptionCode.toString());
-    incErrorCounter();
-  }
-
-  public void logMetric(final String metricName) {
-    incCounter(metricName);
-  }
-
-  public void logStatsRecord(
-      Map<String, AtomicInteger> counters,
-      Map<String, String> statsdata,
-      Map<String, Double> latencies,
-      long startTimeMillis,
-      long endTimeMillis) {
-    writeStats(metadata, counters, statsdata, latencies, startTimeMillis, endTimeMillis);
-  }
-
   private static Map<String, String> loadMetadata(String fileLocation) {
     Map<String, String> retVal = new ConcurrentHashMap<>();
 
@@ -100,7 +80,7 @@ public class StatsCollector extends PerformanceAnalyzerMetricsCollector {
 
       try (InputStream input =
           new FileInputStream(
-              Util.PLUGIN_LOCATION + PluginSettings.CONFIG_FILES_PATH + fileLocation); ) {
+              Util.PLUGIN_LOCATION + PluginSettings.CONFIG_FILES_PATH + fileLocation)) {
 
         // load properties file
         props.load(input);
@@ -112,49 +92,6 @@ public class StatsCollector extends PerformanceAnalyzerMetricsCollector {
     }
 
     return retVal;
-  }
-
-  private StatsCollector(Map<String, String> metadata) {
-    super(
-        MetricsConfiguration.CONFIG_MAP.get(StatsCollector.class).samplingInterval,
-        "StatsCollector");
-    this.metadata = metadata;
-    defaultExceptionCodes.add(StatExceptionCode.TOTAL_ERROR);
-  }
-
-  public void addDefaultExceptionCode(StatExceptionCode statExceptionCode) {
-    defaultExceptionCodes.add(statExceptionCode);
-  }
-
-  @Override
-  public void collectMetrics(long startTime) {
-    Map<String, AtomicInteger> currentCounters = counters;
-    counters = new ConcurrentHashMap<>();
-
-    // currentCounters.putIfAbsent(StatExceptionCode.TOTAL_ERROR.toString(), new AtomicInteger(0));
-
-    for (StatExceptionCode statExceptionCode : defaultExceptionCodes) {
-      currentCounters.putIfAbsent(statExceptionCode.toString(), new AtomicInteger(0));
-    }
-
-    writeStats(
-        metadata, currentCounters, null, null, objectCreationTime.getTime(), new Date().getTime());
-    objectCreationTime = new Date();
-  }
-
-  private void incCounter(String counterName) {
-    AtomicInteger val = counters.putIfAbsent(counterName, new AtomicInteger(1));
-    if (val != null) {
-      val.getAndIncrement();
-    }
-  }
-
-  private void incErrorCounter() {
-    AtomicInteger all_val =
-        counters.putIfAbsent(StatExceptionCode.TOTAL_ERROR.toString(), new AtomicInteger(1));
-    if (all_val != null) {
-      all_val.getAndIncrement();
-    }
   }
 
   private static void writeStats(
@@ -242,5 +179,67 @@ public class StatsCollector extends PerformanceAnalyzerMetricsCollector {
   private static void getTimingInfo(
       String timerName, double latency, StringBuilder builder, int attempts) {
     builder.append(timerName).append(":").append(latency).append("/").append(attempts).append(",");
+  }
+
+  @VisibleForTesting
+  Map<String, AtomicInteger> getCounters() {
+    return counters;
+  }
+
+  public void logException() {
+    logException(StatExceptionCode.OTHER);
+  }
+
+  public void logException(StatExceptionCode statExceptionCode) {
+    incCounter(statExceptionCode.toString());
+    incErrorCounter();
+  }
+
+  public void logMetric(final String metricName) {
+    incCounter(metricName);
+  }
+
+  public void logStatsRecord(
+      Map<String, AtomicInteger> counters,
+      Map<String, String> statsdata,
+      Map<String, Double> latencies,
+      long startTimeMillis,
+      long endTimeMillis) {
+    writeStats(metadata, counters, statsdata, latencies, startTimeMillis, endTimeMillis);
+  }
+
+  public void addDefaultExceptionCode(StatExceptionCode statExceptionCode) {
+    defaultExceptionCodes.add(statExceptionCode);
+  }
+
+  @Override
+  public void collectMetrics(long startTime) {
+    Map<String, AtomicInteger> currentCounters = counters;
+    counters = new ConcurrentHashMap<>();
+
+    // currentCounters.putIfAbsent(StatExceptionCode.TOTAL_ERROR.toString(), new AtomicInteger(0));
+
+    for (StatExceptionCode statExceptionCode : defaultExceptionCodes) {
+      currentCounters.putIfAbsent(statExceptionCode.toString(), new AtomicInteger(0));
+    }
+
+    writeStats(
+        metadata, currentCounters, null, null, objectCreationTime.getTime(), new Date().getTime());
+    objectCreationTime = new Date();
+  }
+
+  private void incCounter(String counterName) {
+    AtomicInteger val = counters.putIfAbsent(counterName, new AtomicInteger(1));
+    if (val != null) {
+      val.getAndIncrement();
+    }
+  }
+
+  private void incErrorCounter() {
+    AtomicInteger all_val =
+        counters.putIfAbsent(StatExceptionCode.TOTAL_ERROR.toString(), new AtomicInteger(1));
+    if (all_val != null) {
+      all_val.getAndIncrement();
+    }
   }
 }
