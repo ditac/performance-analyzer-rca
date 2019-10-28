@@ -83,8 +83,9 @@ public class QueryMetricsRequestHandlerTests {
             + "\"ShardID\",\"type\":\"VARCHAR\"},{\"name\":\"IndexName\","
             + "\"type\":\"VARCHAR\"},{\"name\":\"Operation\",\"type\":"
             + "\"VARCHAR\"},{\"name\":\"CPU_Utilization\",\"type\":\"DOUBLE\""
-            + "}],\"records\":[[null,null,\"GC\",0.0],[null,null,\"management\",0.0],[null,null,\"other\""
-            + ",0.0256],[null,null,\"refresh\",0.0],[\"0\",\"sonested\",\"shardfetch\",0.00159186808056345],"
+            + "}],\"records\":[[null,null,\"GC\",0.0],[null,null,\"management\",0.0],"
+            + "[null,null,\"other\",0.0256],[null,null,\"refresh\",0.0],[\"0\","
+            + "\"sonested\",\"shardfetch\" ,0.00159186808056345],"
             + "[\"0\",\"sonested\",\"shardquery\",1.55800813191944]]}}",
         response);
   }

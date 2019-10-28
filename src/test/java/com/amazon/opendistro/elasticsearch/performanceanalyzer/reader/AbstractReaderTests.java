@@ -39,21 +39,6 @@ import org.jooq.Condition;
 import org.jooq.impl.DSL;
 import org.junit.Ignore;
 
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.MasterServiceMetrics.MasterPendingStatus;
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeDetailsCollector.NodeDetailsStatus;
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeStatsMetricsCollector;
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.reader.MetricPropertiesTests.FailureCondition;
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.MasterServiceMetrics.MasterPendingStatus;
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeDetailsCollector.NodeDetailsStatus;
-// import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeStatsMetricsCollector;
-
 @Ignore
 public class AbstractReaderTests extends AbstractTests {
   protected final String DB_URL;
